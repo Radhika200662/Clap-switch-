@@ -1,0 +1,33 @@
+// Clap Switch using Arduino
+int soundSensor = 2;   // Sound sensor connected to digital pin 2
+int relayPin = 3;       // Relay or LED connected to digital pin 3
+int clapCount = 0;      
+unsigned long lastClapTime = 0;
+
+void setup() {
+  pinMode(soundSensor, INPUT);
+  pinMode(relayPin, OUTPUT);
+  digitalWrite(relayPin, LOW);
+  Serial.begin(9600);
+}
+
+void loop() {
+  int sensorValue = digitalRead(soundSensor);
+
+  if (sensorValue == HIGH) { // Detect clap
+    unsigned long currentTime = millis();
+    if (currentTime - lastClapTime > 300) { // Debounce delay
+      clapCount++;
+      Serial.print("Clap detected! Count: ");
+      Serial.println(clapCount);
+      lastClapTime = currentTime;
+    }
+  }
+
+  if (clapCount == 1) {
+    digitalWrite(relayPin, HIGH); // Turn ON
+  } else if (clapCount == 2) {
+    digitalWrite(relayPin, LOW);  // Turn OFF
+    clapCount = 0; // Reset count after two claps
+  }
+}
